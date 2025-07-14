@@ -5,14 +5,17 @@ import logging
 import os
 import requests
 from azure.ai.translation.text import TextTranslationClient
+from azure.ai.translation.document import DocumentTranslationClient
 from azure.storage.blob import BlobServiceClient
 from azure.identity import DefaultAzureCredential
 
 region = os.environ["AZURE_TEXT_TRANSLATION_REGION"]
 resource_id = os.environ["AZURE_TEXT_TRANSLATION_RESOURCE_ID"]
+endpoint = os.environ["AZURE_DOCUMENT_TRANSLATION_ENDPOINT"]
 
 credential = DefaultAzureCredential()
 transl8r = TextTranslationClient(credential=credential, region=region, resource_id=resource_id)
+doctransl8r = DocumentTranslationClient(endpoint=endpoint, credential=credential)
 storageclient = BlobServiceClient(
     account_url=os.environ["AZURE_STORAGE_ACCOUNT_URL"],
     credential=credential
@@ -52,6 +55,36 @@ def get_supported_languages(req: func.HttpRequest) -> func.HttpResponse:
     supported_languages = transl8r.get_supported_languages()
     return func.HttpResponse(
             json.dumps(supported_languages.as_dict()),
+            status_code=200,
+            mimetype="application/json"
+    )
+
+@app.function_name(name="SupportedFormats")
+@app.route(route="SupportedFormats", auth_level=func.AuthLevel.ANONYMOUS)
+def get_supported_formats(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('Getting supported formats.')
+    retval = []
+    try:
+        supported_formats = doctransl8r.get_supported_document_formats()
+        logging.info(f"Supported formats: {supported_formats}")
+        logging.info(f"Supported formats length: {len(supported_formats)}")
+        for sf in supported_formats:
+            retval.append({
+                "content_types": sf.content_types,
+                "file_extensions": sf.file_extensions,
+                "file_format": sf.file_format,
+                "format_versions": sf.format_versions,
+                "default_format_version": sf.default_format_version
+
+            })
+    except Exception as e:
+        logging.error(f"Error getting supported formats: {e}")
+        return func.HttpResponse(
+            f"Error getting supported formats: {str(e)}",
+            status_code=500
+        )
+    return func.HttpResponse(
+            json.dumps(retval),
             status_code=200,
             mimetype="application/json"
     )

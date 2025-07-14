@@ -6,4 +6,5 @@ azure-functions
 requests
 azure-identity
 azure-ai-translation-text
+azure-ai-translation-document
 azure-storage-blob

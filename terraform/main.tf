@@ -158,6 +158,7 @@ resource "azurerm_function_app_flex_consumption" "this" {
   app_settings = {
     AZURE_TEXT_TRANSLATION_REGION = local.loc_for_naming
     AZURE_TEXT_TRANSLATION_RESOURCE_ID = azurerm_cognitive_account.transl8r.id
+    AZURE_DOCUMENT_TRANSLATION_ENDPOINT = "https://${azurerm_cognitive_account.transl8r.name}.cognitiveservices.azure.com/"
     AZURE_STORAGE_ACCOUNT_URL = azurerm_storage_account.sa.primary_blob_endpoint
   }
 
@@ -175,8 +176,14 @@ resource "azurerm_role_assignment" "blob" {
 }
 
 resource "azurerm_role_assignment" "cog" {
-  scope                = azurerm_storage_account.sa.id
+  scope                = azurerm_cognitive_account.transl8r.id
   role_definition_name = "Cognitive Services Contributor"
+  principal_id         = azurerm_function_app_flex_consumption.this.identity[0].principal_id
+}
+
+resource "azurerm_role_assignment" "cog2" {
+  scope                = azurerm_cognitive_account.transl8r.id
+  role_definition_name = "Cognitive Services User"
   principal_id         = azurerm_function_app_flex_consumption.this.identity[0].principal_id
 }
 
@@ -197,6 +204,7 @@ resource "azurerm_cognitive_account" "transl8r" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   kind                = "TextTranslation"
+  custom_subdomain_name = "ai${local.func_name}"
 
   sku_name = "S1"
 
