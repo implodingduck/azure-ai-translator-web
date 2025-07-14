@@ -143,15 +143,22 @@ resource "azurerm_function_app_flex_consumption" "this" {
   maximum_instance_count      = 50
   instance_memory_in_mb       = 2048
   webdeploy_publish_basic_authentication_enabled = false
-  
 
   site_config {
     application_insights_connection_string = azurerm_application_insights.app.connection_string
+    cors {
+      allowed_origins = [
+        "http://127.0.0.1:5173",
+        "http://localhost:5173"
+      ]
+      support_credentials = true
+    }
   }
 
   app_settings = {
     AZURE_TEXT_TRANSLATION_REGION = local.loc_for_naming
     AZURE_TEXT_TRANSLATION_RESOURCE_ID = azurerm_cognitive_account.transl8r.id
+    AZURE_STORAGE_ACCOUNT_URL = azurerm_storage_account.sa.primary_blob_endpoint
   }
 
   identity {
