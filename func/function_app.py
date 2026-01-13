@@ -89,9 +89,20 @@ def get_supported_formats(req: func.HttpRequest) -> func.HttpResponse:
             mimetype="application/json"
     )
 
+@app.function_name(name="TranslateDocuments")
+@app.route(route="TranslateDocuments", auth_level=func.AuthLevel.ANONYMOUS, methods=["POST"])
+def translate_documents(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('Translating documents...')
+    retval = []
+    return func.HttpResponse(
+            json.dumps(retval),
+            status_code=200,
+            mimetype="application/json"
+    )
+
 # Function to list the directories in the azure storage account under the input container
 @app.function_name(name="ListDirectories")
-@app.route(route="ListDirectories", auth_level=func.AuthLevel.ANONYMOUS)
+@app.route(route="directories", auth_level=func.AuthLevel.ANONYMOUS, methods=["GET"])
 def list_directories(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Listing directories.')
     containerclient = storageclient.get_container_client("input")
@@ -119,7 +130,7 @@ def list_directories(req: func.HttpRequest) -> func.HttpResponse:
 
 # create an azure storage account blob directory
 @app.function_name(name="CreateBlobDirectory")
-@app.route(route="CreateBlobDirectory", auth_level=func.AuthLevel.ANONYMOUS)
+@app.route(route="directories", auth_level=func.AuthLevel.ANONYMOUS, methods=["POST"])
 def create_blob_directory(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Creating blob directory.')
     try:
@@ -212,7 +223,7 @@ def upload_file(req: func.HttpRequest) -> func.HttpResponse:
 
 # Azure function to list the files in a specific directory in the input container 
 @app.function_name(name="ListFilesInDirectory")
-@app.route(route="ListFilesInDirectory/{directory_name:alpha}", auth_level=func.AuthLevel.ANONYMOUS)
+@app.route(route="directories/{directory_name:alpha}", auth_level=func.AuthLevel.ANONYMOUS, methods=["GET"])
 def list_files_in_directory(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Listing files in directory.')
 

@@ -32,15 +32,15 @@ class BackendApi {
     }
 
     async listDirectories() {
-        return this.callApi('/ListDirectories');
+        return this.callApi('/directories');
     }
 
     async listFiles(directory) {
-        return this.callApi(`/ListFilesInDirectory/${directory}`);
+        return this.callApi(`/directories/${directory}`);
     }
 
     async createDirectory(directory) {
-        return this.callApi(`/CreateBlobDirectory/`, 'POST', {"directory_name": directory});
+        return this.callApi(`/directories/`, 'POST', {"directory_name": directory});
     }
 
     async uploadFile(directory, file) {

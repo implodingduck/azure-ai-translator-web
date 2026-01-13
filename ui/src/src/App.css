@@ -14,7 +14,7 @@
 }
 
 .app-header h1 {
-  color: #333;
+  color: #e0e0e0;
   font-size: 2.5rem;
   margin: 0;
   font-weight: 600;
@@ -61,7 +61,7 @@
 
 /* Section Styling */
 .section {
-  background: #f8f9fa;
+  background: #e0e0e0;
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
